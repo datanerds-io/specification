@@ -37,7 +37,7 @@ public interface Specification<T> {
         return spec ->
                 this.isSatisfiedBy(spec)
                         &&
-                        !stream(others).map(o -> o.isSatisfiedBy(spec)).anyMatch(satisfied -> !satisfied);
+                        stream(others).map(o -> o.isSatisfiedBy(spec)).allMatch(satisfied -> satisfied);
     }
 
     /**
@@ -50,12 +50,8 @@ public interface Specification<T> {
 
     default Specification<T> or(Specification<T>... others) {
         Objects.requireNonNull(others, "Specification(s) needs to be set");
-        return spec -> {
-            boolean result = false;
-            for (Specification<T> other : others) {
-                result |= this.isSatisfiedBy(spec) || other.isSatisfiedBy(spec);
-            }
-            return result;
-        };
+        return spec -> this.isSatisfiedBy(spec)
+                ||
+                stream(others).map(o -> o.isSatisfiedBy(spec)).anyMatch(satisfied -> satisfied);
     }
 }
