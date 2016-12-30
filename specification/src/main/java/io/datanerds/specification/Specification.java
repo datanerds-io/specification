@@ -36,7 +36,8 @@ public interface Specification<T> {
         Objects.requireNonNull(others, "Specification(s) needs to be set");
         return spec ->
                 this.isSatisfiedBy(spec)
-                        && stream(others).map(o -> o.isSatisfiedBy(spec)).allMatch(satisfied -> satisfied);
+                        &&
+                        !stream(others).map(o -> o.isSatisfiedBy(spec)).anyMatch(satisfied -> !satisfied);
     }
 
     /**
