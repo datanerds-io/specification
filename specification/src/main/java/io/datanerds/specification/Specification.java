@@ -2,6 +2,8 @@ package io.datanerds.specification;
 
 import java.util.Objects;
 
+import static java.util.Arrays.stream;
+
 /**
  * This interface is an Java 8 implementation of the Specification Pattern described by Eric Evans and Martin Fowler
  * <a href="http://martinfowler.com/apsupp/spec.pdf">here</a>. The difference in this implementation is the possibility
@@ -32,13 +34,7 @@ public interface Specification<T> {
      */
     default Specification<T> and(Specification<T>... others) {
         Objects.requireNonNull(others, "Specification(s) needs to be set");
-        return spec -> {
-            boolean result = true;
-            for (Specification<T> other : others) {
-                result &= this.isSatisfiedBy(spec) && other.isSatisfiedBy(spec);
-            }
-            return result;
-        };
+        return spec -> this.isSatisfiedBy(spec) && stream(others).allMatch(o -> o.isSatisfiedBy(spec));
     }
 
     /**
@@ -51,12 +47,6 @@ public interface Specification<T> {
 
     default Specification<T> or(Specification<T>... others) {
         Objects.requireNonNull(others, "Specification(s) needs to be set");
-        return spec -> {
-            boolean result = false;
-            for (Specification<T> other : others) {
-                result |= this.isSatisfiedBy(spec) || other.isSatisfiedBy(spec);
-            }
-            return result;
-        };
+        return spec -> this.isSatisfiedBy(spec) || stream(others).anyMatch(o -> o.isSatisfiedBy(spec));
     }
 }
